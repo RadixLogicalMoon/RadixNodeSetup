@@ -23,8 +23,8 @@ shout "This script must only be executed as the default admin user created in th
 shout "If the script fails part. Install the remaining steps manually" 
 shout "Or start with a fresh install" 
 
-
-$systemUser = $(whoami)
+try $currentDirectory = $(pwd)
+try $systemUser = $(basename $currentDirectory)
 
 # 1. Lock Root User
 shout "Locking root password to disable root login via password" 
@@ -36,7 +36,8 @@ if [ "$createSSHKey" = "y" ]; then
     shout "SCP your SSH Key to " && pwd
 
     read -r -p "Enter the filename " sshKeyFilePath
-    while [ !(-d $sshKeyFilePath)]; do
+
+    while [ -d $sshKeyFilePath == false ]; do
         shout "File $sshKeyFilePath does not exist" 
         read -r -p "Enter the filename " sshKeyFilePath
     done 
