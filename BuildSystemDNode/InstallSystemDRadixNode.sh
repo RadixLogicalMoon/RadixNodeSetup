@@ -1,29 +1,48 @@
 #!/bin/bash
 
-shout() { echo "$0: $*" >&2; }
-die() { shout "$*"; exit 111; }
-try() { "$@" || die "cannot $*"; }
+# Global Variables
+LOGFILE=log/radixNodeInstall.log
 
-echo "Preparing to install SystemD Radix Node"
-echo "This script should only be executed on a clean build"
+# Global Functions
+shout() { 
+    CURRENTDATETIME=$(date);
+    echo "$*"
+    echo "$CURRENTDATETIME: $*" >> $LOGFILE; }
+die() { shout "$*"; exit 111; }
+try() { 
+    "$@" 2>&1 | tee -a $LOGFILE
+    exit_status=${PIPESTATUS[0]}
+
+    if [ $exit_status -ne 0 ]; then
+        die "Error occurred while executing: $* (See $LOGFILE for details)"
+    fi
+}
+
+mkdir log
+
+shout "Preparing to install SystemD Radix Node"
+shout "This script should only be executed on a clean build"
 
 read -r -p "Do you want to create a new validator node key (y/n)? " babylonMigrationSetup
 while [ !("$babylonMigrationSetup" == y || "$babylonMigrationSetup" == n)]; do
-             read -r -p "Do you want to create a new validator node key (y/n)? " babylonMigrationSetup
+    read -r -p "Do you want to create a new validator node key (y/n)? " babylonMigrationSetup
 done
 
-# 1. Install dependencies
-echo "Installing dependencies and initiate randomness to securely generate keys"
-sudo apt install -y rng-tools openjdk-17-jdk unzip jq curl wget docker.io
-sudo rngd -r /dev/random
-echo "successfully installed dependencies and initiated randomness"
+# 1. Install dependencies 
+shout  "Installing dependencies and initiate randomness to securely generate keys"
+try sudo apt install -y rng-tools openjdk-17-jdk unzip jq curl wget docker.io
+try sudo rngd -r /dev/random
+shout "successfully installed dependencies and initiated randomness"
 
-# 2. Create Radix User
-echo "Creating radixdlt User. User is created with a locked password and can only be switched using 'sudo su - radixdlt'"
-sudo useradd radixdlt -m -s /bin/bash
+# 2. Configure Ports (Already Done as part of system build)
 
-# 3. Allow Radix User to control node service
-echo "Allow Radix User to control node service"
+# 3. Create Radix User
+shout "Creating radixdlt User. User is created with a locked password and can only be switched using 'sudo su - radixdlt'"
+# 3.1 Create User 
+try sudo useradd radixdlt -m -s /bin/bash
+
+# 3.2 Allow Radix User to control node service
+shout "Allow Radix User to control node service"
 sudo sh -c "cat > /etc/sudoers.d/radixdlt << EOF
 radixdlt ALL= NOPASSWD: /bin/systemctl enable radixdlt-node.service
 radixdlt ALL= NOPASSWD: /bin/systemctl restart radixdlt-node.service
@@ -45,35 +64,36 @@ EOF"
 
 
 # 4. Create Config and Data Directories
-echo "Create Config and Data Directories"
-sudo mkdir /etc/radixdlt/
-sudo chown radixdlt:radixdlt -R /etc/radixdlt
-sudo mkdir /data
-sudo chown radixdlt:radixdlt /data
-sudo mkdir /babylon-ledger
-sudo chown radixdlt:radixdlt /babylon-ledger
-sudo mkdir -p /opt/radixdlt/releases
-sudo chown -R radixdlt:radixdlt /opt/radixdlt
+shout "Create Config and Data Directories"
+try sudo mkdir /etc/radixdlt/
+try sudo chown radixdlt:radixdlt -R /etc/radixdlt
+try sudo mkdir /data
+try sudo chown radixdlt:radixdlt /data
+try sudo mkdir /babylon-ledger
+try sudo chown radixdlt:radixdlt /babylon-ledger
+try sudo mkdir -p /opt/radixdlt/releases
+try sudo chown -R radixdlt:radixdlt /opt/radixdlt
 
 
-# 5. Install System D Service
-echo "Installing Sytem D service"
+# 5. Create System D Service File
+shout "Installing Sytem D service"
 sudo curl -Lo /etc/systemd/system/radixdlt-node.service https://raw.githubusercontent.com/fpieper/fpstaking/main/docs/config/radixdlt-node.service
-echo "Enable node service at boot"
+shout "Enable node service at boot"
 sudo systemctl enable radixdlt-node.service
 
 
 # 6. Add radixdlt to path
-echo "Adding radixdlt to path" 
+shout "Adding radixdlt to path" 
 sudo sh -c 'cat > /etc/profile.d/radixdlt.sh << EOF
 PATH=$PATH:/opt/radixdlt
 EOF'
 
 # 7. Install the Radix Distribution (Node)
-echo "Installing the Radix Distribution (Node)"
+shout "Installing the Radix Distribution (Node)"
 cd /home/radixdlt
 #sudo -u radixdlt curl -Lo /opt/radixdlt/update-node https://gist.githubusercontent.com/katansapdevelop/d12f931f35faa35dbbe20d6793149e8b/raw/0927c1a68a5a83b5c368256443bcfe233e883869/update-node && chmod +x /opt/radixdlt/update-node
 #sudo -u radixdlt /opt/radixdlt/./update-node
+
 #Download the latest release from the CLI
 export PLATFORM_NAME=arch-linux-x86_64
 export VERSION=rcnet-v3.1-r5
@@ -89,7 +109,7 @@ mv core-${VERSION} /etc/radixdlt/node/${VERSION}
 
 
 # 8. Create Secrets Directories
-echo "Creating Secret Directories"
+shout "Creating Secret Directories"
 cd /etc/radixdlt/node
 sudo -u radixdlt mkdir /etc/radixdlt/node/secrets-validator
 sudo -u radixdlt mkdir /etc/radixdlt/node/secrets-fullnode
@@ -142,20 +162,20 @@ sudo -u radixdlt chmod 500 /etc/radixdlt/node/secrets-validator && chmod 400 /et
 sudo -u radixdlt chmod 500 /etc/radixdlt/node/secrets-fullnode && chmod 400  /etc/radixdlt/node/secrets-fullnode/*
 
 # 11. Node Configuration
-echo "Download Node Configuration File or you can enter Florians https://raw.githubusercontent.com/fpieper/fpstaking/main/docs/config/default.config"
+shout "Download Node Configuration File or you can enter Florians https://raw.githubusercontent.com/fpieper/fpstaking/main/docs/config/default.config"
 read -r -p "Enter the URL to your Config file ? " configFileURL
 sudo -u radixdlt curl -Lo /etc/radixdlt/node/default.config "$configFileURL"
 
-echo "If using florian's script make sure you edit the file using 'sudo nano /etc/radixdlt/node/default.config' and update your host_ip address at a minimum" 
+shout "If using florian's script make sure you edit the file using 'sudo nano /etc/radixdlt/node/default.config' and update your host_ip address at a minimum" 
 
 # 12. Install Switch Script 
-echo "Installing the switch script"
+shout "Installing the switch script"
 sudo -u radixdlt curl -Lo /opt/radixdlt/switch-mode.sh https://raw.githubusercontent.com/fpieper/fpstaking/main/docs/scripts/switch-mode && chmod +x /opt/radixdlt/switch-mode.sh
-echo "If using NGINX this script needs to be updated to change the port from 3333 to 3334"
+shout "If using NGINX this script needs to be updated to change the port from 3333 to 3334"
 
-echo "Run 'sudo su - radixdlt' to switch to the radixdlt user"
-echo "Run '. /opt/radixdlt/switch-mode.sh fullnode' to start the node as a full node"
-echo "Run 'curl -s localhost:3333/system/health | jq' to check the node status"
+shout "Run 'sudo su - radixdlt' to switch to the radixdlt user"
+shout "Run '. /opt/radixdlt/switch-mode.sh fullnode' to start the node as a full node"
+shout "Run 'curl -s localhost:3333/system/health | jq' to check the node status"
 
 # 13. Install Grafana SystemD Service
 read -r -p "Install Grafana (y/n)? " installGrafana
