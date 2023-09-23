@@ -23,8 +23,13 @@ shout "This script must only be executed as the default admin user created in th
 shout "If the script fails part. Install the remaining steps manually" 
 shout "Or start with a fresh install" 
 
-try $currentDirectory = $(pwd)
-try $systemUser = $(basename $currentDirectory)
+shout "Defaulting system user based on current directory" 
+try systemUser=$(basename pwd)
+if id $systemUser &>/dev/null; then
+    shout "Found User: $systemUser" 
+else
+  die "No user found based on current directory: $PWD"
+fi
 
 # 1. Lock Root User
 shout "Locking root password to disable root login via password" 

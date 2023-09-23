@@ -7,7 +7,9 @@ This script can be run to create the new default user.
 ```
 # Download the file
 wget -O CreateDefaultUser.sh https://raw.githubusercontent.com/RadixLogicalMoon/RadixNodeSetup/development/InitialiseSystem/CreateDefaultUser.sh
+```
 
+```
 # Make script executable and execute it
 chmod u+x CreateDefaultUser.sh
 sudo ./CreateDefaultUser.sh
