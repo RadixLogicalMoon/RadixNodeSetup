@@ -61,7 +61,7 @@ if [ "$createSSHKey" = "y" ]; then
     shout "Creating the 'authorized_keys' file"
     try sudo touch "/home/$systemUser/.ssh/authorized_keys"
     shout "Copying public key to the 'authorized_keys' file"
-    try cat $sshKeyFilePath >>"/home/$systemUser/.ssh/authorized_keys"
+    cat $sshKeyFilePath >>"/home/$systemUser/.ssh/authorized_keys"
     shout "Deleting public key file from $PWD"
     sudo rm $sshKeyFilePath
 
