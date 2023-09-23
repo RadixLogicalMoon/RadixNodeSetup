@@ -17,12 +17,12 @@ try() {
     fi
 }
 
+rm -r log
+mkdir log
+
 shout "This script should only be executed on a clean install of Ubuntu" 
 shout "If the script fails part. Install the remaining steps manually" 
 shout "Or start with a fresh install" 
-
-rm -r log
-mkdir log
 
 # 1. User Setup
 read -r -p "Name of default system user to create: " systemUser
@@ -104,12 +104,12 @@ none /run/shm tmpfs defaults,ro 0 0
 sudo -u $systemUser mount -a
 
 ## 6 Install FIO (Test tool for IO)
-shout "Installing FIO"
+shout "Installing FIO (Test tool for IO)"
 sudo -u $systemUser apt install fio
 shout "fio Install Complete. Run the following command to test 'fio --randrepeat=1 --ioengine=libaio --direct=1 --gtod_reduce=1 --name=test --filename=test --bs=4k --iodepth=64 --size=1G --readwrite=randrw --rwmixread=75'"
 
 ## 6 Install ZSTD (For uncompressing snapshots from https://snapshots.radix.live/)
-shout "Installing zstd"
+shout "Installing zstd (For uncompressing snapshots from https://snapshots.radix.live/)"
 sudo -u $systemUser apt install zstd
 mkdir /backup
 shout "zstd Install Complete and created /backup dir"
