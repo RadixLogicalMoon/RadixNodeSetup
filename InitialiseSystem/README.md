@@ -5,7 +5,7 @@ Bash Scripts to initialise the Validator Nodes prior to installing node software
 ## 1. Run CreateDefaultUser.sh
 This script can be run to create the new default user.  Download the file using the following command
 ```
-wget -O CreateDefaultUser.sh https://raw.githubusercontent.com/RadixLogicalMoon/RadixNodeSetup/development/InitialiseSystem/CreateDefaultUser.sh
+wget -O CreateDefaultUser.sh https://raw.githubusercontent.com/RadixLogicalMoon/RadixNodeSetup/main/InitialiseSystem/CreateDefaultUser.sh
 ```
 
 Now make script executable and execute it
