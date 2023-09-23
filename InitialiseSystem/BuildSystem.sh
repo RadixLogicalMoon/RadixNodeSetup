@@ -27,8 +27,8 @@ shout "Or start with a fresh install"
 # 1. User Setup
 read -r -p "Name of default system user to create: " systemUser
 shout "Creating user $systemUser" 
-adduser "$systemUser" 
-adduser "$systemUser" sudo
+try adduser "$systemUser" 
+try adduser "$systemUser" sudo
 
 if id "$systemUser" &>/dev/null; then
     shout "User $systemUser Successfully Created" 
@@ -39,7 +39,7 @@ fi
 
 # 1. Lock Root User
 shout "Locking root password to disable root login via password" 
-sudo -u $systemUser passwd -l root
+try sudo passwd -l root
 
 # 2. SSH Setup
 read -r -p "Do you wish to setup an SSH key (y/n)? " createSSHKey
