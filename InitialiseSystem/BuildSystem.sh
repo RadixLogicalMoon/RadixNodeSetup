@@ -38,19 +38,18 @@ try sudo passwd -l root
 # 2. SSH Setup
 read -r -p "Do you have an SSH key (y/n) you would like to use for $systemUser? " createSSHKey
 if [ "$createSSHKey" = "y" ]; then
-    shout "SCP your SSH Key to " && pwd
+    shout "SCP your SSH Key to $PWD"  
 
-    read -r -p "Enter the filename " sshKeyFilePath
-
+    read -r -p "Enter the filename: " sshKeyFilePath
     while [ -d $sshKeyFilePath == false ]; do
         shout "File $sshKeyFilePath does not exist" 
-        read -r -p "Enter the filename " sshKeyFilePath
+        read -r -p "Enter the filename: " sshKeyFilePath
     done 
 fi
 
 if [ "$createSSHKey" = "y" ]; then
     shout "Copying keys to /home/$systemUser/.ssh/authorized_keys" 
-    shout "Current Directory is: " && pwd 
+    shout "Current Directory is: $PWD"
     mkdir -p "/home/$systemUser/.ssh"
     if [ -d "/home/$systemUser/.ssh" ]; then
         shout "Directory /home/$systemUser/.ssh successfully created" 

@@ -28,10 +28,10 @@ shout "This script should only be executed on a clean build"
 shout  "Installing dependencies and initiate randomness to securely generate keys"
 try sudo apt install -y rng-tools openjdk-17-jdk unzip jq curl wget docker.io
 rngdPID=$(pgrep rngd)
-if[ $rngdPID != "" ];then
+if [ $rngdPID != "" ]; then
   shout "Killing process id $rngdPID found running for rngd"
   kill $rngdPID
-endif
+fi
 try sudo rngd -r /dev/random
 shout "successfully installed dependencies and initiated randomness"
 
@@ -93,30 +93,33 @@ EOF'
 
 # 6. Download & Install the Radix Distribution (Node)
 shout "Download & Installing the Radix Distribution (Node)"
-cd /home/radixdlt
+try cd /home/radixdlt
 #sudo -u radixdlt curl -Lo /opt/radixdlt/update-node https://gist.githubusercontent.com/katansapdevelop/d12f931f35faa35dbbe20d6793149e8b/raw/0927c1a68a5a83b5c368256443bcfe233e883869/update-node && chmod +x /opt/radixdlt/update-node
 #sudo -u radixdlt /opt/radixdlt/./update-node
 
 #Download the latest release from the CLI
-sudo -u radixdlt export PLATFORM_NAME=arch-linux-x86_64
-sudo -u radixdlt export VERSION=v1.0.0
-sudo -u radixdlt wget https://github.com/radixdlt/babylon-node/releases/download/${VERSION}/babylon-node-${VERSION}.zip
-sudo -u radixdlt wget https://github.com/radixdlt/babylon-node/releases/download/${VERSION}/babylon-node-rust-${PLATFORM_NAME}-release-${VERSION}.zip
-sudo -u radixdlt unzip babylon-node-${VERSION}.zip
-sudo -u radixdlt unzip babylon-node-rust-${PLATFORM_NAME}-release-${VERSION}.zip
+shout "Downloading the Radix Distribution (Node)"
+export PLATFORM_NAME=arch-linux-x86_64
+export VERSION=v1.0.0
+sudo -u radixdlt wget https://github.com/radixdlt/babylon-node/releases/download/$VERSION/babylon-node-$VERSION.zip
+sudo -u radixdlt wget https://github.com/radixdlt/babylon-node/releases/download/$VERSION/babylon-node-rust-$PLATFORM_NAME-release-$VERSION.zip
+try sudo -u radixdlt unzip babylon-node-$VERSION.zip
+try sudo -u radixdlt unzip babylon-node-rust-$PLATFORM_NAME-release-$VERSION.zip
 
 
+shout "Installing the Radix Node"
 sudo -u radixdlt mkdir -p /etc/radixdlt/node/
-sudo -u radixdlt mv core-${VERSION} /etc/radixdlt/node/${VERSION}
+sudo -u radixdlt mv core-$VERSION /etc/radixdlt/node/$VERSION
 # 6.4 Move the java application into the systemd service directory
 sudo -u radixdlt mkdir -p /etc/radixdlt/node/
-sudo -u radixdlt mv core-${VERSION} /etc/radixdlt/node/${VERSION}
+sudo -u radixdlt mv core-$VERSION /etc/radixdlt/node/$VERSION
 
 # 6.5 Move the library into your Java Class Path
-export LIBRARY_FILENAME=libcorerust.so
-sudo -u radixdlt unzip babylon-node-rust-${PLATFORM_NAME}-release-${VERSION}.zip
+shout "Moving Rust Core to Java Class Path"
+LIBRARY_FILENAME=libcorerust.so
+sudo -u radixdlt unzip babylon-node-rust-$PLATFORM_NAME-release-$VERSION.zip
 sudo -u radixdlt sudo mkdir -p /usr/lib/jni
-sudo -u radixdlt sudo mv ${LIBRARY_FILENAME} /usr/lib/jni/${LIBRARY_FILENAME}
+sudo -u radixdlt sudo mv $LIBRARY_FILENAME /usr/lib/jni/$LIBRARY_FILENAME
 
 
 # 7. Create Keys Secrets Directories
@@ -149,6 +152,7 @@ sudo -u radixdlt chown -R radixdlt:radixdlt /etc/radixdlt/node/secrets-fullnode/
 cd /etc/radixdlt/node
 
 # 7.2. Set environment file
+shout "Setting password and java opts in environment file"
 read -r -p "Enter validator key password? " validatorKeyPassword
 
 NODE_JAVA_OPTS=JAVA_OPTS="--enable-preview -server -Xms12g -Xmx12g  -XX:MaxDirectMemorySize=2048m -XX:+HeapDumpOnOutOfMemoryError -XX:+UseCompressedOops -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=jks -Djava.security.egd=file:/dev/urandom -DLog4jContextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector"
@@ -165,7 +169,7 @@ EOF
 
 
 # 7.3. Restrict access to secrets (Not in standard docs)
-echo "Restrict access to secrets"
+shout  "Restricting access to secrets directories"
 sudo chown -R radixdlt:radixdlt /etc/radixdlt/node/secrets-validator
 sudo chown -R radixdlt:radixdlt /etc/radixdlt/node/secrets-fullnode
 sudo -u radixdlt chmod 500 /etc/radixdlt/node/secrets-validator && chmod 400 /etc/radixdlt/node/secrets-validator/*
