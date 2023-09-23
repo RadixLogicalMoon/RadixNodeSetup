@@ -28,7 +28,7 @@ $systemUser = $(whoami)
 
 # 1. Lock Root User
 shout "Locking root password to disable root login via password" 
-try sudo -u $systemUser passwd -l root
+try sudo passwd -l root
 
 # 2. SSH Setup
 read -r -p "Do you wish to setup an SSH key (y/n)? " createSSHKey
@@ -43,9 +43,9 @@ if [ "$createSSHKey" = "y" ]; then
     else
         die "Directory /home/$systemUser/.ssh was not successfully created" 
     fi
-    try sudo -u $systemUser touch "/home/$systemUser/.ssh/authorized_keys"
-    try sudo -u $systemUser chmod -R go= "/home/$systemUser/.ssh"
-    try sudo -u $systemUser cat id_rsa.pub >>"/home/$systemUser/.ssh/authorized_keys"
+    try sudo touch "/home/$systemUser/.ssh/authorized_keys"
+    try sudo chmod -R go= "/home/$systemUser/.ssh"
+    try sudo cat id_rsa.pub >>"/home/$systemUser/.ssh/authorized_keys"
 fi
 if [ "$createSSHKey" = "n" ]; then
     shout "You can manually copy generated ssh keys to /home/$systemUser/.ssh/authorized_keys if required"
@@ -55,52 +55,52 @@ read -r -p "Enter new SSH Port (ensure cloud provider firewall has this port ope
 
 shout "Update SSH login to disable root login"
 # Could these be added to the sshd_config.d override file instead???
-sudo -u $systemUser echo "
+try sudo echo "
 Port $sshPort
 PasswordAuthentication no
 PermitRootLogin no
 AllowUsers $systemUser
 " >>/etc/ssh/sshd_config
 
-sudo -u $systemUser chmod -R go= ~/.ssh
-sudo -u $systemUser chown -R "$systemUser:$systemUser" ~/.ssh
+try sudo chmod -R go= ~/.ssh
+try sudo chown -R "$systemUser:$systemUser" ~/.ssh
 
-sudo -u $systemUser systemctl restart sshd
+sudo systemctl restart sshd
 shout "Created SSH Key and copied to /.ssh/authorized_keys"
 
 # 3. Firewall Setup
 shout "Configuring Ports"
-sudo -u $systemUser ufw default deny incoming
-sudo -u $systemUser ufw default allow outgoing
-sudo -u $systemUser ufw allow "$sshPort/tcp"
-sudo -u $systemUser ufw allow 30000/tcp
-sudo -u $systemUser ufw allow 443/tcp
-sudo -u $systemUser ufw enable
-sudo -u $systemUser ufw status
-sudo -u $systemUser  try sudo ufw status
+try sudo ufw default deny incoming
+try sudo ufw default allow outgoing
+try sudo ufw allow "$sshPort/tcp"
+try sudo ufw allow 30000/tcp
+try sudo ufw allow 443/tcp
+try sudo ufw enable
+try sudo ufw status
+try sudo ufw status
 shout "Successfully configured ports 30000, 443 & $sshPort.  Check you can login again before exiting the session"
 
 # 4. System Update
 shout "About to install system updates"
-sudo -u $systemUser apt update -y
-sudo -u $systemUser apt-get dist-upgrade
+try sudo apt update -y
+try sudo apt-get dist-upgrade
 shout "Successfully installed system updates"
 
 # 5 Shared Memory Read Only
 shout "Setting shared memory to read only"
-sudo -u $systemUser echo "
+try sudo echo "
 none /run/shm tmpfs defaults,ro 0 0
 " >>/etc/fstab
-sudo -u $systemUser mount -a
+try sudo -u $systemUser mount -a
 
 ## 6 Install FIO (Test tool for IO)
 shout "Installing FIO (Test tool for IO)"
-sudo -u $systemUser apt install fio
+try sudo apt install fio
 shout "fio Install Complete. Run the following command to test 'fio --randrepeat=1 --ioengine=libaio --direct=1 --gtod_reduce=1 --name=test --filename=test --bs=4k --iodepth=64 --size=1G --readwrite=randrw --rwmixread=75'"
 
 ## 6 Install ZSTD (For uncompressing snapshots from https://snapshots.radix.live/)
 shout "Installing zstd (For uncompressing snapshots from https://snapshots.radix.live/)"
-sudo -u $systemUser apt install zstd
+try sudo apt install zstd
 mkdir /backup
 shout "zstd Install Complete and created /backup dir"
 
