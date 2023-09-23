@@ -28,7 +28,6 @@ shout "Or start with a fresh install"
 read -r -p "Name of default system user to create: " systemUser
 shout "Creating user $systemUser" 
 try adduser --gecos "admin" $systemUser
-try passwd $systemUser
 try adduser $systemUser sudo
 
 if id "$systemUser" &>/dev/null; then
