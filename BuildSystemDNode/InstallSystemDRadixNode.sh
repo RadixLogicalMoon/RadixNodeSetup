@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Global Variables
-LOGFILE=log/radixNodeInstall.log
+LOGFILE=$PWD/log/radixNodeInstall.log
 
 # Global Functions
 shout() { 
