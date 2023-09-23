@@ -1,6 +1,6 @@
 #!/bin/bash
 # Global Variables
-LOGFILE=log/nodesetup.log
+LOGFILE=$PWD/log/nodesetup.log
 
 # Global Functions
 shout() { 

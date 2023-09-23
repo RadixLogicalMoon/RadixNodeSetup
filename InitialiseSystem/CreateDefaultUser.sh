@@ -1,6 +1,6 @@
 #!/bin/bash
 # Global Variables
-LOGFILE=log/createUser.log
+LOGFILE=$PWD/log/createUser.log
 
 # Global Functions
 shout() { 

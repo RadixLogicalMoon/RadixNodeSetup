@@ -18,9 +18,15 @@ sudo ./InstallSystemDRadixNode.sh
 
 ### Transfer your keys
 You will need to transfer your keys to the remote machine using the following commands
-```scp -P <customer port> /file/to/send <username>@<remote>:/etc/radixdlt/node/secrets-validator```
-or this for the full node
-```scp  -P <customer port> /file/to/send <username>@<remote>:/etc/radixdlt/node/secrets-fullnode```
+```
+scp -P <customer port> /file/to/send <username>@<remote>:/home/<admin user>
+# Run this when the script prompts you too
+sudo mv node-keystore.ks /etc/radixdlt/node/secrets-validator 
+```
+or this for the full node after you scp the file over
+```
+sudo mv node-keystore.ks /etc/radixdlt/node/secrets-fullnode 
+```
 
 Note you may need to scp the files to the usere home directory and then ```cp``` the files to the directories above
 
