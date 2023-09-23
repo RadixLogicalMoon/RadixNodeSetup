@@ -184,11 +184,13 @@ sudo -u radixdlt chmod 500 /etc/radixdlt/node/secrets-validator && chmod 400 /et
 sudo -u radixdlt chmod 500 /etc/radixdlt/node/secrets-fullnode && chmod 400  /etc/radixdlt/node/secrets-fullnode/*
 
 # 8. Node Configuration
-shout "Download Node Configuration File or you can enter Florians https://raw.githubusercontent.com/fpieper/fpstaking/main/docs/config/default.config"
+shout "Download Node Configuration File!!"
+shout "You can enter our default one if required https://raw.githubusercontent.com/RadixLogicalMoon/RadixNodeSetup/main/BuildSystemDNode/config/babylon/NodeOnly/default.config"
+shout "If using our script make sure you edit the file using 'sudo nano /etc/radixdlt/node/default.config' and update all missing sections" 
 read -r -p "Enter the URL to your Config file ? " configFileURL
 sudo -u radixdlt curl -Lo /etc/radixdlt/node/default.config "$configFileURL"
 
-shout "If using florian's script make sure you edit the file using 'sudo nano /etc/radixdlt/node/default.config' and update your host_ip address at a minimum" 
+
 
 # 9. Install Switch Script 
 shout "Installing the switch script"
