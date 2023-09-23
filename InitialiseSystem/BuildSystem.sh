@@ -38,14 +38,18 @@ else
 fi
 
 # 1. Lock Root User
+shout "Switching user to $systemUser"
+su -l $systemUser
+try echo "User switched to $(whoami)"  
+
 shout "Locking root password to disable root login via password" 
-try sudo passwd -l root
+try passwd -l root
 
 # 2. SSH Setup
 read -r -p "Do you wish to setup an SSH key (y/n)? " createSSHKey
 if [ "$createSSHKey" = "y" ]; then
     shout "Creating SSH Key" 
-    sudo -u "$systemUser" ssh-keygen -t ed25519 -f id_rsa
+    ssh-keygen -t ed25519 -f id_rsa
     shout "Copying keys to /home/$systemUser/.ssh/authorized_keys" 
     shout "Current Directory is: " && pwd 
     mkdir -p "/home/$systemUser/.ssh"
@@ -65,52 +69,52 @@ fi
 read -r -p "Enter new SSH Port (ensure cloud provider firewall has this port open): " sshPort
 
 shout "Update SSH login to disable root login"
-sudo -u $systemUser echo "
+echo "
 Port $sshPort
 PasswordAuthentication no
 PermitRootLogin no
 AllowUsers $systemUser
 " >>/etc/ssh/sshd_config # Could these be added to the sshd_config.d override file instead
 
-sudo -u $systemUser chmod -R go= ~/.ssh
+chmod -R go= ~/.ssh
 chown -R "$systemUser:$systemUser" ~/.ssh
 
-sudo -u $systemUser systemctl restart sshd
+systemctl restart sshd
 shout "Created SSH Key and copied to /.ssh/authorized_keys"
 
 # 3. Firewall Setup
 shout "Configuring Ports"
-sudo -u $systemUser ufw default deny incoming
-sudo -u $systemUser ufw default allow outgoing
-sudo -u $systemUser ufw allow "$sshPort/tcp"
-sudo -u $systemUser ufw allow 30000/tcp
-sudo -u $systemUser ufw allow 443/tcp
-sudo -u $systemUser ufw enable
-sudo -u $systemUser ufw status
+ufw default deny incoming
+ufw default allow outgoing
+ufw allow "$sshPort/tcp"
+ufw allow 30000/tcp
+ufw allow 443/tcp
+ufw enable
+ufw status
 try sudo ufw status
 shout "Successfully configured ports 30000, 443 & $sshPort.  Check you can login again before exiting the session"
 
 # 4. System Update
 shout "About to install system updates"
-sudo -u $systemUser apt update -y
-sudo -u $systemUser apt-get dist-upgrade
+apt update -y
+apt-get dist-upgrade
 shout "Successfully installed system updates"
 
 # 5 Shared Memory Read Only
 shout "Setting shared memory to read only"
-sudo -u $systemUser echo "
+echo "
 none /run/shm tmpfs defaults,ro 0 0
 " >>/etc/fstab
-sudo -u $systemUser mount -a
+mount -a
 
 ## 6 Install FIO (Test tool for IO)
 shout "Installing FIO (Test tool for IO)"
-sudo -u $systemUser apt install fio
+apt install fio
 shout "fio Install Complete. Run the following command to test 'fio --randrepeat=1 --ioengine=libaio --direct=1 --gtod_reduce=1 --name=test --filename=test --bs=4k --iodepth=64 --size=1G --readwrite=randrw --rwmixread=75'"
 
 ## 6 Install ZSTD (For uncompressing snapshots from https://snapshots.radix.live/)
 shout "Installing zstd (For uncompressing snapshots from https://snapshots.radix.live/)"
-sudo -u $systemUser apt install zstd
+apt install zstd
 mkdir /backup
 shout "zstd Install Complete and created /backup dir"
 
