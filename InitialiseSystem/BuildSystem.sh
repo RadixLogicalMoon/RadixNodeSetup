@@ -31,14 +31,6 @@ else
   die "No user found based on current working directory: $PWD"
 fi
 
-
-# 4. System Update
-shout "About to install system updates"
-try sudo apt update -y
-try sudo apt-get dist-upgrade
-shout "Successfully installed system updates"
-
-
 # 1. Lock Root User
 shout "Locking root password to disable root login via password" 
 try sudo passwd -l root
@@ -66,8 +58,13 @@ if [ "$createSSHKey" = "y" ]; then
         die "Directory /home/$systemUser/.ssh was not successfully created" 
     fi
 
+    shout "Creating the 'authorized_keys' file"
     try sudo touch "/home/$systemUser/.ssh/authorized_keys"
-    try sudo mv $sshKeyFilePath "/home/$systemUser/.ssh"
+    shout "Copying public key to the 'authorized_keys' file"
+    try cat $sshKeyFilePath >>"/home/$systemUser/.ssh/authorized_keys"
+    shout "Deleting public key file from $PWD"
+    sudo rm $sshKeyFilePath
+
 fi
 
 try sudo chmod -R go= ~/.ssh
@@ -100,6 +97,11 @@ try sudo ufw status
 try sudo ufw status
 shout "Successfully configured ports 30000, 443 & $sshPort.  Check you can login again before exiting the session"
 
+# 4. System Update
+shout "About to install system updates"
+try sudo apt update -y
+try sudo apt-get dist-upgrade
+shout "Successfully installed system updates"
 
 # 5 Shared Memory Read Only
 shout "Setting shared memory to read only"

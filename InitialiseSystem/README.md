@@ -25,11 +25,11 @@ sudo ./BuildSystem.sh
 ``` 
 
 ### SSH Key
-If you plan to setup an ssh key for the system user.  SCP the file to the home directory of the system user
+If you plan to setup an ssh key for the new system user.  SCP a copy of the public key file to the home directory of the new system user
 ```
 ##Template
 scp -P <customer port> /file/to/send <username>@<remote>:/home/<default_user>
 
 ##Example
-scp -P 1234 ~/.ssh/id_rsa admin@12.123.123.12:/home/admin
+scp -P 1234 ~/.ssh/id_rsa.pub admin@12.123.123.12:/home/admin
 ```
