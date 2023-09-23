@@ -27,6 +27,11 @@ shout "This script should only be executed on a clean build"
 # 1. Install dependencies 
 shout  "Installing dependencies and initiate randomness to securely generate keys"
 try sudo apt install -y rng-tools openjdk-17-jdk unzip jq curl wget docker.io
+rngdPID=$(pgrep rngd)
+if[ $rngdPID != "" ];then
+  shout "Killing process id $rngdPID found running for rngd"
+  kill $rngdPID
+endif
 try sudo rngd -r /dev/random
 shout "successfully installed dependencies and initiated randomness"
 
