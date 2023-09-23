@@ -24,11 +24,11 @@ shout "If the script fails part. Install the remaining steps manually"
 shout "Or start with a fresh install" 
 
 shout "Defaulting system user based on current directory" 
-try systemUser=$(basename pwd)
+systemUser=$(basename $PWD)
 if id $systemUser &>/dev/null; then
     shout "Found User: $systemUser" 
 else
-  die "No user found based on current directory: $PWD"
+  die "No user found based on current working directory: $PWD"
 fi
 
 # 1. Lock Root User
@@ -59,7 +59,7 @@ if [ "$createSSHKey" = "y" ]; then
     fi
 
     try sudo touch "/home/$systemUser/.ssh/authorized_keys"
-    try sudo mv sshKeyFilePath "/home/$systemUser/.ssh"
+    try sudo mv $sshKeyFilePath "/home/$systemUser/.ssh"
 fi
 
 try sudo chmod -R go= ~/.ssh
