@@ -27,7 +27,7 @@ shout "Or start with a fresh install"
 # 1. User Setup
 read -r -p "Name of default system user to create: " systemUser
 shout "Creating user $systemUser" 
-try adduser --gecos "admin" $systemUser
+try adduser $systemUser
 try adduser $systemUser sudo
 
 if id "$systemUser" &>/dev/null; then
@@ -43,4 +43,4 @@ try mv BuildSystem.sh /home/$systemUser
 try chmod u+x /home/$systemUser/BuildSystem.sh
 shout "Run 'sudo ./BuildSystem.sh' as user $systemUser"
 shout "Switching to user $systemUser"
-su $systemUser
+su - $systemUser
