@@ -58,6 +58,9 @@ if [ "$createSSHKey" = "y" ]; then
     chmod -R go= "/home/$systemUser/.ssh"
     cat id_rsa.pub >>"/home/$systemUser/.ssh/authorized_keys"    
 fi
+if [ "$createSSHKey" = "n" ]; then
+    shout "You can manually copy generated ssh keys to /home/$systemUser/.ssh/authorized_keys if required"
+fi
 
 read -r -p "Enter new SSH Port (ensure cloud provider firewall has this port open): " sshPort
 
