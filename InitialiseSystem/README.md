@@ -3,14 +3,13 @@ Bash Scripts to initialise the Validator Nodes prior to installing node software
 
 
 ## 1. Run CreateDefaultUser.sh
-This script can be run to create the new default user.  
+This script can be run to create the new default user.  Download the file using the following command
 ```
-# Download the file
 wget -O CreateDefaultUser.sh https://raw.githubusercontent.com/RadixLogicalMoon/RadixNodeSetup/development/InitialiseSystem/CreateDefaultUser.sh
 ```
 
+Now make script executable and execute it
 ```
-# Make script executable and execute it
 chmod u+x CreateDefaultUser.sh
 sudo ./CreateDefaultUser.sh
 ```
@@ -22,7 +21,6 @@ it should have downloaded the script into the 'home' directory of the new defaul
 and switched to that user.  So to kick off the system build run the following command
 
 ```
-cd /home/<default_user>
 sudo ./BuildSystem.sh
 ``` 
 

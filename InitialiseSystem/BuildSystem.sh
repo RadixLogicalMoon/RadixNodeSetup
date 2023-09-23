@@ -31,6 +31,14 @@ else
   die "No user found based on current working directory: $PWD"
 fi
 
+
+# 4. System Update
+shout "About to install system updates"
+try sudo apt update -y
+try sudo apt-get dist-upgrade
+shout "Successfully installed system updates"
+
+
 # 1. Lock Root User
 shout "Locking root password to disable root login via password" 
 try sudo passwd -l root
@@ -92,18 +100,13 @@ try sudo ufw status
 try sudo ufw status
 shout "Successfully configured ports 30000, 443 & $sshPort.  Check you can login again before exiting the session"
 
-# 4. System Update
-shout "About to install system updates"
-try sudo apt update -y
-try sudo apt-get dist-upgrade
-shout "Successfully installed system updates"
 
 # 5 Shared Memory Read Only
 shout "Setting shared memory to read only"
 try sudo echo "
 none /run/shm tmpfs defaults,ro 0 0
 " >>/etc/fstab
-try sudo -u $systemUser mount -a
+try sudo mount -a
 
 ## 6 Install FIO (Test tool for IO)
 shout "Installing FIO (Test tool for IO)"
