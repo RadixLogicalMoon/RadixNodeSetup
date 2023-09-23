@@ -31,10 +31,18 @@ shout "Locking root password to disable root login via password"
 try sudo passwd -l root
 
 # 2. SSH Setup
-read -r -p "Do you wish to setup an SSH key (y/n)? " createSSHKey
+read -r -p "Do you have an SSH key (y/n) you would like to use for $systemUser? " createSSHKey
 if [ "$createSSHKey" = "y" ]; then
-    shout "Creating SSH Key" 
-    sudo -u $systemUser ssh-keygen -t ed25519 -f id_rsa
+    shout "SCP your SSH Key to " && pwd
+
+    read -r -p "Enter the filename " sshKeyFilePath
+    while [ !(-d $sshKeyFilePath)]; do
+        shout "File $sshKeyFilePath does not exist" 
+        read -r -p "Enter the filename " sshKeyFilePath
+    done 
+fi
+
+if [ "$createSSHKey" = "y" ]; then
     shout "Copying keys to /home/$systemUser/.ssh/authorized_keys" 
     shout "Current Directory is: " && pwd 
     mkdir -p "/home/$systemUser/.ssh"
@@ -43,14 +51,15 @@ if [ "$createSSHKey" = "y" ]; then
     else
         die "Directory /home/$systemUser/.ssh was not successfully created" 
     fi
+
     try sudo touch "/home/$systemUser/.ssh/authorized_keys"
-    try sudo chmod -R go= "/home/$systemUser/.ssh"
-    try sudo cat id_rsa.pub >>"/home/$systemUser/.ssh/authorized_keys"
-fi
-if [ "$createSSHKey" = "n" ]; then
-    shout "You can manually copy generated ssh keys to /home/$systemUser/.ssh/authorized_keys if required"
+    try sudo mv sshKeyFilePath "/home/$systemUser/.ssh"
 fi
 
+try sudo chmod -R go= ~/.ssh
+try sudo chown -R "$systemUser:$systemUser" ~/.ssh
+
+shout "Setting up non standard SSH port"
 read -r -p "Enter new SSH Port (ensure cloud provider firewall has this port open): " sshPort
 
 shout "Update SSH login to disable root login"
@@ -61,9 +70,6 @@ PasswordAuthentication no
 PermitRootLogin no
 AllowUsers $systemUser
 " >>/etc/ssh/sshd_config
-
-try sudo chmod -R go= ~/.ssh
-try sudo chown -R "$systemUser:$systemUser" ~/.ssh
 
 sudo systemctl restart sshd
 shout "Created SSH Key and copied to /.ssh/authorized_keys"
