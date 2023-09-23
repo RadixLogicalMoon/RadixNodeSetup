@@ -104,7 +104,9 @@ shout "Download & Installing the Radix Distribution (Node)"
 #sudo -u radixdlt /opt/radixdlt/./update-node
 
 #Download the latest release from the CLI
-try cd /opt/radixdlt/releases 
+shout "Changing directory to '/opt/radixdlt/releases'"
+cd /opt/radixdlt/releases 
+shout "Changed directory to $PWD"
 shout "Downloading the Radix Distribution (Node)"
 export PLATFORM_NAME=arch-linux-x86_64
 export VERSION=v1.0.0
@@ -130,6 +132,7 @@ try sudo mv $LIBRARY_FILENAME /usr/lib/jni/$LIBRARY_FILENAME
 #  7.1 Create Directories
 shout "Creating Secret Directories"
 cd /etc/radixdlt/node
+shout "Changed directory to $PWD"
 sudo -u radixdlt mkdir /etc/radixdlt/node/secrets-validator
 sudo -u radixdlt mkdir /etc/radixdlt/node/secrets-fullnode
 
@@ -154,6 +157,7 @@ done
 sudo -u radixdlt chown -R radixdlt:radixdlt /etc/radixdlt/node/secrets-validator/
 sudo -u radixdlt chown -R radixdlt:radixdlt /etc/radixdlt/node/secrets-fullnode/
 cd /etc/radixdlt/node
+shout "Changed directory to $PWD"
 
 # 7.2. Set environment file
 shout "Setting password and java opts in environment file"
