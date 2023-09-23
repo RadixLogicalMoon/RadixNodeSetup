@@ -75,6 +75,12 @@ try sudo chown radixdlt:radixdlt /babylon-ledger
 try sudo mkdir -p /opt/radixdlt/releases
 try sudo chown -R radixdlt:radixdlt /opt/radixdlt
 
+# New Directories for Babylon Node
+try sudo mkdir -p /etc/radixdlt/node/
+try sudo chown -R radixdlt:radixdlt /etc/radixdlt/node
+try sudo mkdir -p /usr/lib/jni
+
+
 
 # 5. Create System D Service File
 shout "Installing Sytem D service"
@@ -93,33 +99,31 @@ EOF'
 
 # 6. Download & Install the Radix Distribution (Node)
 shout "Download & Installing the Radix Distribution (Node)"
-try cd /home/radixdlt
+
 #sudo -u radixdlt curl -Lo /opt/radixdlt/update-node https://gist.githubusercontent.com/katansapdevelop/d12f931f35faa35dbbe20d6793149e8b/raw/0927c1a68a5a83b5c368256443bcfe233e883869/update-node && chmod +x /opt/radixdlt/update-node
 #sudo -u radixdlt /opt/radixdlt/./update-node
 
 #Download the latest release from the CLI
+try cd /opt/radixdlt/releases 
 shout "Downloading the Radix Distribution (Node)"
 export PLATFORM_NAME=arch-linux-x86_64
 export VERSION=v1.0.0
-sudo -u radixdlt wget https://github.com/radixdlt/babylon-node/releases/download/$VERSION/babylon-node-$VERSION.zip
-sudo -u radixdlt wget https://github.com/radixdlt/babylon-node/releases/download/$VERSION/babylon-node-rust-$PLATFORM_NAME-release-$VERSION.zip
+export LIBRARY_FILENAME=libcorerust.so
+try sudo -u radixdlt wget https://github.com/radixdlt/babylon-node/releases/download/$VERSION/babylon-node-$VERSION.zip
+try sudo -u radixdlt wget https://github.com/radixdlt/babylon-node/releases/download/$VERSION/babylon-node-rust-$PLATFORM_NAME-release-$VERSION.zip
 try sudo -u radixdlt unzip babylon-node-$VERSION.zip
 try sudo -u radixdlt unzip babylon-node-rust-$PLATFORM_NAME-release-$VERSION.zip
 
-
 shout "Installing the Radix Node"
-sudo -u radixdlt mkdir -p /etc/radixdlt/node/
-sudo -u radixdlt mv core-$VERSION /etc/radixdlt/node/$VERSION
 # 6.4 Move the java application into the systemd service directory
-sudo -u radixdlt mkdir -p /etc/radixdlt/node/
-sudo -u radixdlt mv core-$VERSION /etc/radixdlt/node/$VERSION
+try sudo -u radixdlt mkdir /etc/radixdlt/node/$VERSION
+try sudo -u radixdlt mv core-$VERSION /etc/radixdlt/node/$VERSION
+
 
 # 6.5 Move the library into your Java Class Path
 shout "Moving Rust Core to Java Class Path"
-LIBRARY_FILENAME=libcorerust.so
-sudo -u radixdlt unzip babylon-node-rust-$PLATFORM_NAME-release-$VERSION.zip
-sudo -u radixdlt sudo mkdir -p /usr/lib/jni
-sudo -u radixdlt sudo mv $LIBRARY_FILENAME /usr/lib/jni/$LIBRARY_FILENAME
+try sudo unzip babylon-node-rust-$PLATFORM_NAME-release-$VERSION.zip
+try sudo mv $LIBRARY_FILENAME /usr/lib/jni/$LIBRARY_FILENAME
 
 
 # 7. Create Keys Secrets Directories
