@@ -4,8 +4,17 @@ Bash Scripts for SystemD Validator Node Install and Additionally Nginx install i
 ## 1. Running InstallSystemDRadixNode.sh
 This script must be run as the new root user that you created during the Initialise System process.  
 
-Download the InstallSystemDRadixNode.sh script using command ```wget -O InstallSystemDRadixNode.sh <url to raw file>``` 
-Then run ```chmod u+x InstallSystemDRadixNode.sh``` and then execute via ```sudo ./InstallSystemDRadixNode.sh```.  
+Download the InstallSystemDRadixNode.sh script using command 
+```
+wget -O InstallSystemDRadixNode.sh https://raw.githubusercontent.com/RadixLogicalMoon/RadixNodeSetup/main/BuildSystemDNode/InstallSystemDRadixNode.sh
+``` 
+
+Then run the following to make it executable and execute it
+```
+chmod u+x InstallSystemDRadixNode.sh
+sudo ./InstallSystemDRadixNode.sh
+``` 
+
 
 ### Transfer your keys
 You will need to transfer your keys to the remote machine using the following commands
@@ -30,8 +39,16 @@ To stop the node run ```sudo systemctl stop radixdlt-node.service```
 ## 2. Running InstallNginx.sh
 This script must be run as the new root user that you created during the Initialise System process.  
 
-Download the InstallSystemDRadixNode.sh script using command ```wget -O InstallNginx.sh <url to raw file>``` 
-Then run ```chmod u+x InstallNginx.sh``` and then execute via ```sudo ./InstallNginx.sh```.  
+Download the InstallSystemDRadixNode.sh script using command 
+```
+wget -O InstallNginx.sh https://raw.githubusercontent.com/RadixLogicalMoon/RadixNodeSetup/main/BuildSystemDNode/InstallNginx.sh
+``` 
+
+Then run the following to make it executable and execute it
+```
+chmod u+x InstallNginx.sh
+./InstallNginx.sh
+```
 
 After installing the script ensure that the file /etc/radixdlt/node/default.config has the use proxy protocol set to true and the network.p2p.listen_port as 30001 so as not to conflict with Nginx.  See [Validator Proxy Options Explained](https://radixtalk.com/t/validator-proxy-options-explained/493) on [Radix Talk](https://radixtalk.com).  Also don't forget to update the nginx config for the proxy_pass setting
 ```
