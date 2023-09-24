@@ -70,9 +70,10 @@ try sudo chmod -R go= ~/.ssh
 try sudo chown -R "$systemUser:$systemUser" ~/.ssh
 
 shout "Setting up non standard SSH port"
+shout "If setting up a Custom SSH port, it should match the one configured in terraform"
 read -r -p "Enter new SSH Port (ensure cloud provider firewall has this port open): " sshPort
 
-shout "Update SSH login to disable root login"
+shout "Updating SSH login to disable root login"
 # Could these be added to the sshd_config.d override file instead???
 try sudo echo "
 Port $sshPort
