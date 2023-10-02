@@ -8,6 +8,7 @@ variable "region" {
 variable "color" {
   type = string
   nullable = false
+  description="Used as part of naming the VM"
 }
 
 variable "env" {
