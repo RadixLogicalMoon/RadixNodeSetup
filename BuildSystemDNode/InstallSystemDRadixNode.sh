@@ -74,8 +74,8 @@ try sudo chown -R radixdlt:radixdlt /opt/radix-babylon
 
 # 5. Create System D Service File
 shout "Installing Sytem D service"
-try sudo curl -Lo /etc/systemd/system/radixdlt-node.service https://raw.githubusercontent.com/RadixLogicalMoon/RadixNodeSetup/main/BuildSystemDNode/config/babylon/SystemD/radixdlt-node.service
-sudo chown radixdlt:radixdlt /etc/systemd/system/radixdlt-node.service
+try sudo curl -Lo /etc/systemd/system/radixdlt-node.service https://raw.githubusercontent.com/RadixLogicalMoon/RadixNodeSetup/main/BuildSystemDNode/config/babylon/SystemD/radix-babylon.service
+sudo chown radixdlt:radixdlt /etc/systemd/system/radix-babylon.service
 
 # 10  Enable Your Node at Startup
 shout "Enabling node service at boot"
@@ -164,11 +164,11 @@ shout "If using NGINX this script needs to be updated to change the port from 33
 shout "Downloading latest ledger copy"
 cd /backup
 current_date=$(date +%Y-%m-%d)
-sudo curl -O https://radix-snapshots.b-cdn.net/$current_date/RADIXDB-no-api.tar.zst 
+sudo curl -O https://radix-snapshots.b-cdn.net/$current_date/RADIXDB.tar.zst 
 shout "Unpacking latest ledger copy"
 LEDGER_DIR=/babylon-ledger
 sudo rm -rf $LEDGER_DIR/*
-sudo tar --use-compress-program=zstdmt -xvf RADIXDB-no-api.tar.zst -C $LEDGER_DIR/
+sudo tar --use-compress-program=zstdmt -xvf RADIXDB.tar.zst -C $LEDGER_DIR/
 sudo chown -R radixdlt:radixdlt $LEDGER_DIR
 shout "Deleting downloaded ledger copy"
 sudo rm -rf /backup/*

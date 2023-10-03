@@ -8,13 +8,13 @@ After=systemd-journald-dev-log.socket
 Wants=network-online.target
 
 [Service]
-EnvironmentFile=/etc/radixdlt/node/secrets/environment
+EnvironmentFile=/etc/radix-babylon/node/secrets/environment
 User=radixdlt
 LimitNOFILE=65536
 LimitNPROC=65536
 LimitMEMLOCK=infinity
-WorkingDirectory=/etc/radixdlt/node
-ExecStart=/etc/radixdlt/node/v1.0.0/bin/core
+WorkingDirectory=/etc/radix-babylon/node
+ExecStart=/etc/radix-babylon/node/bin/core
 SuccessExitStatus=143
 TimeoutStopSec=10
 Restart=on-failure
