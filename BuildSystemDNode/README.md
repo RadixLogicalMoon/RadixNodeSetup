@@ -1,4 +1,4 @@
-# BashScripts
+# Node Install Scripts
 Bash Scripts for SystemD Validator Node Install and Additionally Nginx install if you wish to but it is not required
 
 ## 1. Running InstallSystemDRadixNode.sh
@@ -15,7 +15,6 @@ chmod u+x InstallSystemDRadixNode.sh
 sudo ./InstallSystemDRadixNode.sh
 ``` 
 
-
 ### Transfer your keys
 You will need to transfer your keys to the remote machine using the following commands
 ```
@@ -30,6 +29,8 @@ sudo mv node-keystore.ks /etc/radixdlt/node/secrets-fullnode
 
 Note you may need to scp the files to the usere home directory and then ```cp``` the files to the directories above
 
+# 2. Running the Node
+
 ### radixdlt user
 After login you need to switch to the radixdlt user, which has no password. To switch to this user you need to run the command ```sudo su - radixdlt```.  
 You will need this to run any scripts etc.  
@@ -42,43 +43,17 @@ if there are any issues check the log files using ```sudo nano /etc/radixdlt/nod
 ### Stopping the node
 To stop the node run ```sudo systemctl stop radixdlt-node.service```
 
-## 2. Running InstallNginx.sh
-This script must be run as the new root user that you created during the Initialise System process.  
+### Checking the Node is running
+Use the following commands to check the health of the Node
+```
+# Check Node Health
+curl -s localhost:3334/system/health | jq
 
-Download the InstallSystemDRadixNode.sh script using command 
-```
-wget -O InstallNginx.sh https://raw.githubusercontent.com/RadixLogicalMoon/RadixNodeSetup/main/BuildSystemDNode/InstallNginx.sh
-``` 
+# Check Node Sync Status
+curl -s localhost:3334/system/network-sync-status | jq
 
-Then run the following to make it executable and execute it
-```
-chmod u+x InstallNginx.sh
-./InstallNginx.sh
-```
-
-After installing the script ensure that the file /etc/radixdlt/node/default.config has the use proxy protocol set to true and the network.p2p.listen_port as 30001 so as not to conflict with Nginx.  See [Validator Proxy Options Explained](https://radixtalk.com/t/validator-proxy-options-explained/493) on [Radix Talk](https://radixtalk.com).  Also don't forget to update the nginx config for the proxy_pass setting
-```
-network.p2p.use_proxy_protocol=true
-network.p2p.listen_port=30001
+# Check peers (must be both IN and OUT connections)
+curl -s localhost:3334/system/peers | jq
 ```
 
-To edit the file run ```sudo nano /etc/radixdlt/node/default.config```
-
-### Resync the Node and Nginx
-Restart the node and Nginx to resync them after an install if any issues
-```
-sudo su - radixdlt
-sudo systemctl restart radixdlt-node.service
-exit
-sudo systemctl restart nginx
-```
-
-### Checking the Nginx Logs
-Run the following to check for any issues with Nginx
-```
-tail -f /var/log/nginx/error.log
-```
-
-### Stopping Nginx
-To stop the nginx run ```sudo systemctl stop nginx```
-
+##  3. Grafana Cloud Setup

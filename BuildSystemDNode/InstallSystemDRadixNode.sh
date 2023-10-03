@@ -63,24 +63,18 @@ radixdlt ALL= NOPASSWD: /bin/sed -i s/fullnode/validator/g /etc/grafana-agent.ya
 radixdlt ALL= NOPASSWD: /bin/sed -i s/validator/fullnode/g /etc/grafana-agent.yaml
 EOF"
 
-
 # 4. Create Config and Data Directories
 shout "Create Config and Data Directories"
-try sudo mkdir /etc/radixdlt/
 try sudo chown radixdlt:radixdlt -R /etc/radixdlt
 try sudo mkdir /data
 try sudo chown radixdlt:radixdlt /data
 try sudo mkdir /babylon-ledger
 try sudo chown radixdlt:radixdlt /babylon-ledger
-try sudo mkdir -p /opt/radixdlt/releases
-try sudo chown -R radixdlt:radixdlt /opt/radixdlt
 
 # New Directories for Babylon Node
-try sudo mkdir -p /etc/radixdlt/node/
-try sudo chown -R radixdlt:radixdlt /etc/radixdlt/node
 try sudo mkdir -p /usr/lib/jni
-
-
+try sudo mkdir -p /opt/radix-babylon/releases
+try sudo chown -R radixdlt:radixdlt /opt/radix-babylon
 
 # 5. Create System D Service File
 shout "Installing Sytem D service"
@@ -94,59 +88,34 @@ sudo systemctl enable radixdlt-node.service
 # 5.1 Add radixdlt to path
 shout "Adding radixdlt to path" 
 sudo sh -c 'cat > /etc/profile.d/radixdlt.sh << EOF
-PATH=$PATH:/opt/radixdlt
+PATH=$PATH:/opt/radix-babylon
 EOF'
 
 # 6. Download & Install the Radix Distribution (Node)
 shout "Download & Installing the Radix Distribution (Node)"
-
-#sudo -u radixdlt curl -Lo /opt/radixdlt/update-node https://gist.githubusercontent.com/katansapdevelop/d12f931f35faa35dbbe20d6793149e8b/raw/0927c1a68a5a83b5c368256443bcfe233e883869/update-node && chmod +x /opt/radixdlt/update-node
-#sudo -u radixdlt /opt/radixdlt/./update-node
-
-#Download the latest release from the CLI
-shout "Changing directory to '/opt/radixdlt/releases'"
-cd /opt/radixdlt/releases 
-shout "Changed directory to $PWD"
-shout "Downloading the Radix Distribution (Node)"
-export PLATFORM_NAME=arch-linux-x86_64
-export VERSION=v1.0.0
-export LIBRARY_FILENAME=libcorerust.so
-try sudo -u radixdlt wget https://github.com/radixdlt/babylon-node/releases/download/$VERSION/babylon-node-$VERSION.zip
-try sudo -u radixdlt wget https://github.com/radixdlt/babylon-node/releases/download/$VERSION/babylon-node-rust-$PLATFORM_NAME-release-$VERSION.zip
-try sudo -u radixdlt unzip babylon-node-$VERSION.zip
-try sudo -u radixdlt unzip babylon-node-rust-$PLATFORM_NAME-release-$VERSION.zip
-
-shout "Installing the Radix Node"
-# 6.4 Move the java application into the systemd service directory
-try sudo -u radixdlt mkdir /etc/radixdlt/node/$VERSION
-try sudo -u radixdlt mv core-$VERSION /etc/radixdlt/node/$VERSION
-
-
-# 6.5 Move the library into your Java Class Path
-shout "Moving Rust Core to Java Class Path"
-try sudo unzip babylon-node-rust-$PLATFORM_NAME-release-$VERSION.zip
-try sudo mv $LIBRARY_FILENAME /usr/lib/jni/$LIBRARY_FILENAME
+sudo -u radixdlt curl -Lo /opt/radix-babylon/update-node https://raw.githubusercontent.com/fpieper/fpstaking/main/docs/scripts/update-node && chmod +x /opt/radix-babylon/update-node
+sudo -u radixdlt /opt/radix-babylon/./update-node
 
 
 # 7. Create Keys Secrets Directories
 #  7.1 Create Directories
 shout "Creating Secret Directories"
-cd /etc/radixdlt/node
+cd /etc/radix-babylon/node
 shout "Changed directory to $PWD"
-sudo -u radixdlt mkdir /etc/radixdlt/node/secrets-validator
-sudo -u radixdlt mkdir /etc/radixdlt/node/secrets-fullnode
+sudo -u radixdlt mkdir /etc/radix-babylon/node/secrets-validator
+sudo -u radixdlt mkdir /etc/radix-babylon/node/secrets-fullnode
 
 #  7.2 Create Keys
 read -r -p "Do you want to create a new full node key (y/n)? " createFullNodeKey
 if [ "$createFullNodeKey" = "y" ]; then
   read -r -p "Enter Full Node Key Password: " fullNodeKeyPassword
-  docker run --rm  -v /etc/radixdlt/node/secrets/:/keygen/key radixdlt/keygen:v1.4.1   --keystore=secrets-fullnode/node-keystore.ks --password="$fullNodeKeyPassword" 
+  docker run --rm  -v /etc/radix-babylon/node/secrets/:/keygen/key radixdlt/keygen:v1.4.1   --keystore=secrets-fullnode/node-keystore.ks --password="$fullNodeKeyPassword" 
 fi
 
 read -r -p "Do you want to create a new validator node key (y/n)? " createValidatorNodeKey
 if [ "$createValidatorNodeKey" = "y" ]; then
   read -r -p "Enter Validator Node Key Password: " validatorNodeKeyPassword
-  docker run --rm  -v /etc/radixdlt/node/secrets/:/keygen/key radixdlt/keygen:v1.4.1   --keystore=secrets-validator/node-keystore.ks --password="$validatorNodeKeyPassword"
+  docker run --rm  -v /etc/radix-babylon/node/secrets/:/keygen/key radixdlt/keygen:v1.4.1   --keystore=secrets-validator/node-keystore.ks --password="$validatorNodeKeyPassword"
 fi
 
 
@@ -154,9 +123,9 @@ read -r -p "Copy the secret keys to the Node or you've created new ones. Is it d
 while [ "$keysCopied" != y ]; do
     read -r -p "Copy the secret keys to the Node or you've created new ones. Is it done yet (y/n)? " keysCopied
 done
-sudo -u radixdlt chown -R radixdlt:radixdlt /etc/radixdlt/node/secrets-validator/
-sudo -u radixdlt chown -R radixdlt:radixdlt /etc/radixdlt/node/secrets-fullnode/
-cd /etc/radixdlt/node
+sudo -u radixdlt chown -R radixdlt:radixdlt /etc/radix-babylon/node/secrets-validator/
+sudo -u radixdlt chown -R radixdlt:radixdlt /etc/radix-babylon/node/secrets-fullnode/
+cd /etc/radix-babylon/node
 shout "Changed directory to $PWD"
 
 # 7.2. Set environment file
@@ -164,44 +133,57 @@ shout "Setting password and java opts in environment file"
 read -r -p "Enter validator key password? " validatorKeyPassword
 
 NODE_JAVA_OPTS="--enable-preview -server -Xms12g -Xmx12g  -XX:MaxDirectMemorySize=2048m -XX:+HeapDumpOnOutOfMemoryError -XX:+UseCompressedOops -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=jks -Djava.security.egd=file:/dev/urandom -DLog4jContextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector"
-sudo -u radixdlt cat > /etc/radixdlt/node/secrets-validator/environment << EOF
+sudo -u radixdlt cat > /etc/radix-babylon/node/secrets-validator/environment << EOF
 JAVA_OPTS=$NODE_JAVA_OPTS
 RADIX_NODE_KEYSTORE_PASSWORD=$validatorKeyPassword
 EOF
 
 read -r -p "Enter full node key password? " fullNodeKeyPassword
-sudo -u radixdlt cat > /etc/radixdlt/node/secrets-fullnode/environment << EOF
+sudo -u radixdlt cat > /etc/radix-babylon/node/secrets-fullnode/environment << EOF
 JAVA_OPTS=$NODE_JAVA_OPTS
 RADIX_NODE_KEYSTORE_PASSWORD=$fullNodeKeyPassword
 EOF
 
-
 # 7.3. Restrict access to secrets (Not in standard docs)
 shout  "Restricting access to secrets directories"
-sudo chown -R radixdlt:radixdlt /etc/radixdlt/node/secrets-validator
-sudo chown -R radixdlt:radixdlt /etc/radixdlt/node/secrets-fullnode
-sudo -u radixdlt chmod 500 /etc/radixdlt/node/secrets-validator && chmod 400 /etc/radixdlt/node/secrets-validator/*
-sudo -u radixdlt chmod 500 /etc/radixdlt/node/secrets-fullnode && chmod 400  /etc/radixdlt/node/secrets-fullnode/*
+sudo chown -R radixdlt:radixdlt /etc/radix-babylon/node/secrets-validator
+sudo chown -R radixdlt:radixdlt /etc/radix-babylon/node/secrets-fullnode
+sudo -u radixdlt chmod 500 /etc/radix-babylon/node/secrets-validator && chmod 400 /etc/radix-babylon/node/secrets-validator/*
+sudo -u radixdlt chmod 500 /etc/radix-babylon/node/secrets-fullnode && chmod 400  /etc/radix-babylon/node/secrets-fullnode/*
 
 # 8. Node Configuration
 shout "Download Node Configuration File!!"
 shout "You can enter our default one if required https://raw.githubusercontent.com/RadixLogicalMoon/RadixNodeSetup/main/BuildSystemDNode/config/babylon/NodeOnly/default.config"
-shout "If using our script make sure you edit the file using 'sudo nano /etc/radixdlt/node/default.config' and update all missing sections" 
+shout "If using our script make sure you edit the file using 'sudo nano /etc/radix-babylon/node/default.config' and update all missing sections" 
 read -r -p "Enter the URL to your Config file ? " configFileURL
-sudo -u radixdlt curl -Lo /etc/radixdlt/node/default.config "$configFileURL"
-
-
+sudo -u radixdlt curl -Lo /etc/radix-babylon/node/default.config "$configFileURL"
 
 # 9. Install Switch Script 
 shout "Installing the switch script"
-sudo -u radixdlt curl -Lo /opt/radixdlt/switch-mode.sh https://raw.githubusercontent.com/fpieper/fpstaking/main/docs/scripts/switch-mode && chmod +x /opt/radixdlt/switch-mode.sh
+sudo -u radixdlt curl -Lo /opt/radix-babylon/switch-mode.sh https://raw.githubusercontent.com/fpieper/fpstaking/main/docs/scripts/switch-mode && chmod +x /opt/radix-babylon/switch-mode.sh
 shout "If using NGINX this script needs to be updated to change the port from 3333 to 3334"
 
-shout "Run 'sudo su - radixdlt' to switch to the radixdlt user"
-shout "Run '. /opt/radixdlt/switch-mode.sh fullnode' to start the node as a full node"
-shout "Run 'curl -s localhost:3333/system/health | jq' to check the node status"
 
-# 10. Install Grafana SystemD Service
+# 10. Downloading & install latest ledger copy 
+shout "Downloading latest ledger copy"
+cd /backup
+current_date=$(date +%Y-%m-%d)
+sudo curl -O https://radix-snapshots.b-cdn.net/$current_date/RADIXDB-no-api.tar.zst 
+shout "Unpacking latest ledger copy"
+LEDGER_DIR=/babylon-ledger
+sudo rm -rf $LEDGER_DIR/*
+sudo tar --use-compress-program=zstdmt -xvf RADIXDB-no-api.tar.zst -C $LEDGER_DIR/
+sudo chown -R radixdlt:radixdlt $LEDGER_DIR
+shout "Deleting downloaded ledger copy"
+sudo rm -rf /backup/*
+
+shout "Run 'sudo su - radixdlt' to switch to the radixdlt user"
+shout "Run '. /opt/radix-babylon/switch-mode.sh fullnode' to start the node as a full node"
+shout "Run 'curl -s localhost:3334/system/health | jq' to check the node status"
+shout "Run 'curl -s localhost:3334/system/network-sync-status | jq' to check the sync status"
+shout "Run 'curl -s localhost:3334/system/peers | jq' to check peers.  Remember there should be both IN and OUT connections or ports are not open correctly or the default.config file is not setup properly"
+
+# 11. Install Grafana SystemD Service
 read -r -p "Install Grafana (y/n)? " installGrafana
 if [ "$installGrafana" = "y" ]; then
   echo "Follow the steps from Florian's guide to setup Grafana 'https://github.com/fpieper/fpstaking/blob/main/docs/validator_guide.md#monitoring-with-grafana-cloud'"

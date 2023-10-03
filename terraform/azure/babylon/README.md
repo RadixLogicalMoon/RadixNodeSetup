@@ -40,6 +40,7 @@ Create a new variable definition file in this directory with the filename "terra
     "env":"blue",
     "public_key_path":"~/.ssh/id_rsa.pub"
     "location": "Australia Southeast",
+    "admin_user":"admin"
 }
 ```
 Ensure that for the firewall ports each has a unique id for priority
