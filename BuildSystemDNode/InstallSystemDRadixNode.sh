@@ -26,7 +26,7 @@ shout "This script should only be executed on a clean build"
 
 # 1. Install dependencies 
 shout  "Installing dependencies and initiate randomness to securely generate keys"
-try sudo apt install -y rng-tools openjdk-17-jdk unzip jq curl wget docker.io
+try sudo apt install -y rng-tools openjdk-17-jdk unzip jq docker.io
 rngdPID=$(pgrep rngd)
 if [ $rngdPID != "" ]; then
   shout "Killing process id $rngdPID found running for rngd"
@@ -65,14 +65,10 @@ EOF"
 
 # 4. Create Config and Data Directories
 shout "Create Config and Data Directories"
-try sudo chown radixdlt:radixdlt -R /etc/radixdlt
-try sudo mkdir /data
-try sudo chown radixdlt:radixdlt /data
+try sudo mkdir /etc/radix-babylon/
+try sudo chown radixdlt:radixdlt -R /etc/radix-babylon
 try sudo mkdir /babylon-ledger
-try sudo chown radixdlt:radixdlt /babylon-ledger
-
-# New Directories for Babylon Node
-try sudo mkdir -p /usr/lib/jni
+try sudo chown radixdlt:radixdlt -R /babylon-ledger
 try sudo mkdir -p /opt/radix-babylon/releases
 try sudo chown -R radixdlt:radixdlt /opt/radix-babylon
 
