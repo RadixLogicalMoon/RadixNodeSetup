@@ -20,14 +20,14 @@ You will need to transfer your keys to the remote machine using the following co
 ```
 scp -P <customer port> /file/to/send <username>@<remote>:/home/<admin user>
 # Run this when the script prompts you too
-sudo mv node-keystore.ks /etc/radixdlt/node/secrets-validator 
+sudo mv node-keystore.ks /etc/radix-babylon/node/secrets-validator 
 ```
 or this for the full node after you scp the file over
 ```
-sudo mv node-keystore.ks /etc/radixdlt/node/secrets-fullnode 
+sudo mv node-keystore.ks /etc/radix-babylon/node/secrets-fullnode 
 ```
 
-Note you may need to scp the files to the usere home directory and then ```cp``` the files to the directories above
+Note you may need to scp the files to the user home directory and then ```cp``` the files to the directories above
 
 # 2. Running the Node
 
