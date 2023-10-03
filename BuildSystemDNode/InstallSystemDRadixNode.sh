@@ -44,24 +44,25 @@ try sudo useradd radixdlt -m -s /bin/bash
 
 # 3.2 Allow Radix User to control node service
 shout "Allow Radix User to control node service"
-sudo sh -c "cat > /etc/sudoers.d/radixdlt << EOF
-radixdlt ALL= NOPASSWD: /bin/systemctl enable radixdlt-node.service
-radixdlt ALL= NOPASSWD: /bin/systemctl restart radixdlt-node.service
-radixdlt ALL= NOPASSWD: /bin/systemctl stop radixdlt-node.service
-radixdlt ALL= NOPASSWD: /bin/systemctl start radixdlt-node.service
-radixdlt ALL= NOPASSWD: /bin/systemctl reload radixdlt-node.service
-radixdlt ALL= NOPASSWD: /bin/systemctl status radixdlt-node.service
-radixdlt ALL= NOPASSWD: /bin/systemctl enable radixdlt-node
-radixdlt ALL= NOPASSWD: /bin/systemctl restart radixdlt-node
-radixdlt ALL= NOPASSWD: /bin/systemctl stop radixdlt-node
-radixdlt ALL= NOPASSWD: /bin/systemctl start radixdlt-node
-radixdlt ALL= NOPASSWD: /bin/systemctl reload radixdlt-node
-radixdlt ALL= NOPASSWD: /bin/systemctl status radixdlt-node
-radixdlt ALL= NOPASSWD: /bin/systemctl status radixdlt-node
+sudo sh -c 'cat > /etc/sudoers.d/radix-babylon << EOF
+radixdlt ALL= NOPASSWD: /bin/systemctl enable radix-babylon.service
+radixdlt ALL= NOPASSWD: /bin/systemctl restart radix-babylon.service
+radixdlt ALL= NOPASSWD: /bin/systemctl stop radix-babylon.service
+radixdlt ALL= NOPASSWD: /bin/systemctl start radix-babylon.service
+radixdlt ALL= NOPASSWD: /bin/systemctl reload radix-babylon.service
+radixdlt ALL= NOPASSWD: /bin/systemctl status radix-babylon.service
+radixdlt ALL= NOPASSWD: /bin/systemctl enable radix-babylon
+radixdlt ALL= NOPASSWD: /bin/systemctl restart radix-babylon
+radixdlt ALL= NOPASSWD: /bin/systemctl stop radix-babylon
+radixdlt ALL= NOPASSWD: /bin/systemctl start radix-babylon
+radixdlt ALL= NOPASSWD: /bin/systemctl reload radix-babylon
+radixdlt ALL= NOPASSWD: /bin/systemctl status radix-babylon
+radixdlt ALL= NOPASSWD: /bin/systemctl status radix-babylon
 radixdlt ALL= NOPASSWD: /bin/systemctl restart grafana-agent
 radixdlt ALL= NOPASSWD: /bin/sed -i s/fullnode/validator/g /etc/grafana-agent.yaml
 radixdlt ALL= NOPASSWD: /bin/sed -i s/validator/fullnode/g /etc/grafana-agent.yaml
-EOF"
+EOF'
+
 
 # 4. Create Config and Data Directories
 shout "Create Config and Data Directories"
@@ -74,16 +75,16 @@ try sudo chown -R radixdlt:radixdlt /opt/radix-babylon
 
 # 5. Create System D Service File
 shout "Installing Sytem D service"
-try sudo curl -Lo /etc/systemd/system/radixdlt-node.service https://raw.githubusercontent.com/RadixLogicalMoon/RadixNodeSetup/main/BuildSystemDNode/config/babylon/SystemD/radix-babylon.service
+try sudo curl -Lo /etc/systemd/system/radix-babylon.service https://raw.githubusercontent.com/fpieper/fpstaking/main/docs/config/radix-babylon.service
 sudo chown radixdlt:radixdlt /etc/systemd/system/radix-babylon.service
 
 # 10  Enable Your Node at Startup
 shout "Enabling node service at boot"
-sudo systemctl enable radixdlt-node.service
+sudo systemctl enable radix-babylon.service
 
 # 5.1 Add radixdlt to path
 shout "Adding radixdlt to path" 
-sudo sh -c 'cat > /etc/profile.d/radixdlt.sh << EOF
+sudo sh -c 'cat > /etc/profile.d/radix-babylon.sh << EOF
 PATH=$PATH:/opt/radix-babylon
 EOF'
 
@@ -105,13 +106,13 @@ sudo -u radixdlt mkdir /etc/radix-babylon/node/secrets-fullnode
 read -r -p "Do you want to create a new full node key (y/n)? " createFullNodeKey
 if [ "$createFullNodeKey" = "y" ]; then
   read -r -p "Enter Full Node Key Password: " fullNodeKeyPassword
-  docker run --rm  -v /etc/radix-babylon/node/secrets/:/keygen/key radixdlt/keygen:v1.4.1   --keystore=secrets-fullnode/node-keystore.ks --password="$fullNodeKeyPassword" 
+  sudo docker run --rm  -v /etc/radix-babylon/node/secrets-fullnode/:/keygen/key radixdlt/keygen:v1.4.1   --keystore=/keygen/key/node-keystore.ks --password="$fullNodeKeyPassword" 
 fi
 
 read -r -p "Do you want to create a new validator node key (y/n)? " createValidatorNodeKey
 if [ "$createValidatorNodeKey" = "y" ]; then
   read -r -p "Enter Validator Node Key Password: " validatorNodeKeyPassword
-  docker run --rm  -v /etc/radix-babylon/node/secrets/:/keygen/key radixdlt/keygen:v1.4.1   --keystore=secrets-validator/node-keystore.ks --password="$validatorNodeKeyPassword"
+  sudo docker run --rm  -v /etc/radix-babylon/node/secrets-validator/:/keygen/key radixdlt/keygen:v1.4.1   --keystore=/keygen/key/node-keystore.ks --password="$validatorNodeKeyPassword"
 fi
 
 
@@ -128,7 +129,7 @@ shout "Changed directory to $PWD"
 shout "Setting password and java opts in environment file"
 read -r -p "Enter validator key password? " validatorKeyPassword
 
-NODE_JAVA_OPTS="--enable-preview -server -Xms12g -Xmx12g  -XX:MaxDirectMemorySize=2048m -XX:+HeapDumpOnOutOfMemoryError -XX:+UseCompressedOops -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=jks -Djava.security.egd=file:/dev/urandom -DLog4jContextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector"
+NODE_JAVA_OPTS="--enable-preview -server -Xms12g -Xmx12g  -XX:MaxDirectMemorySize=2048m -XX:+HeapDumpOnOutOfMemoryError -XX:+UseCompressedOops -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=jks -Djava.security.egd=file:/dev/urandom -DLog4jContextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector -Djava.library.path=/etc/radix-babylon/node/jni"
 sudo -u radixdlt cat > /etc/radix-babylon/node/secrets-validator/environment << EOF
 JAVA_OPTS=$NODE_JAVA_OPTS
 RADIX_NODE_KEYSTORE_PASSWORD=$validatorKeyPassword
@@ -158,7 +159,6 @@ sudo -u radixdlt curl -Lo /etc/radix-babylon/node/default.config "$configFileURL
 shout "Installing the switch script"
 sudo -u radixdlt curl -Lo /opt/radix-babylon/switch-mode.sh https://raw.githubusercontent.com/fpieper/fpstaking/main/docs/scripts/switch-mode && chmod +x /opt/radix-babylon/switch-mode.sh
 shout "If using NGINX this script needs to be updated to change the port from 3333 to 3334"
-
 
 # 10. Downloading & install latest ledger copy 
 shout "Downloading latest ledger copy"
