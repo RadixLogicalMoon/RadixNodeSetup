@@ -96,7 +96,7 @@ try sudo ufw allow 443/tcp
 try sudo ufw enable
 try sudo ufw status
 try sudo ufw status
-shout "Successfully configured ports 30000, 443 & $sshPort.  Check you can login again before exiting the session"
+shout "Successfully configured ports 3000, 30000, 443 & $sshPort.  Check you can login again before exiting the session"
 
 # 4. System Update
 shout "About to install system updates"
