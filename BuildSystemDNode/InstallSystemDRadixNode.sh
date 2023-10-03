@@ -163,7 +163,7 @@ shout "Changed directory to $PWD"
 shout "Setting password and java opts in environment file"
 read -r -p "Enter validator key password? " validatorKeyPassword
 
-NODE_JAVA_OPTS=JAVA_OPTS="--enable-preview -server -Xms12g -Xmx12g  -XX:MaxDirectMemorySize=2048m -XX:+HeapDumpOnOutOfMemoryError -XX:+UseCompressedOops -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=jks -Djava.security.egd=file:/dev/urandom -DLog4jContextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector"
+NODE_JAVA_OPTS="--enable-preview -server -Xms12g -Xmx12g  -XX:MaxDirectMemorySize=2048m -XX:+HeapDumpOnOutOfMemoryError -XX:+UseCompressedOops -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=jks -Djava.security.egd=file:/dev/urandom -DLog4jContextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector"
 sudo -u radixdlt cat > /etc/radixdlt/node/secrets-validator/environment << EOF
 JAVA_OPTS=$NODE_JAVA_OPTS
 RADIX_NODE_KEYSTORE_PASSWORD=$validatorKeyPassword

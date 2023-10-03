@@ -90,6 +90,7 @@ shout "Configuring Ports"
 try sudo ufw default deny incoming
 try sudo ufw default allow outgoing
 try sudo ufw allow "$sshPort/tcp"
+try sudo ufw allow 3000/tcp
 try sudo ufw allow 30000/tcp
 try sudo ufw allow 443/tcp
 try sudo ufw enable
